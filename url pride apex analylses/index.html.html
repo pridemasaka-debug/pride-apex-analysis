@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA & Domain Ready -->
+    <title>Pride Apex Analysis • Intelligent Data Platform</title>
+    <meta name="description" content="Modern data analysis platform for schools and businesses. Collect, analyze, and get actionable recommendations with beautiful dashboards and smart insights.">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pride Apex">
+    <meta name="application-name" content="Pride Apex Analysis">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Pride Apex Analysis">
+    <meta property="og:description" content="Intelligent data analysis for schools & businesses — analyze performance, manage resources, and get smart recommendations.">
+    <meta property="og:type" content="website">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .modern-card {
+            transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), 
+                       box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .modern-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.1);
+        }
+
+        .data-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table th {
+            background: linear-gradient(to bottom, #f8fafc, #e0e7ff);
+            font-weight: 600;
+            color: #1e40af;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .school-theme .data-table th {
+            background: linear-gradient(to bottom, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+        
+        .business-theme .data-table th {
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            color: #e2e8f0;
+        }
+
+        .score-cell {
+            transition: background-color 0.2s ease, color 0.2s ease;
+            min-width: 72px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .nav-active {
+            background-color: white;
+            color: #1e40af;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            font-size: 1.1rem;
+            letter-spacing: -.025em;
+        }
+
+        .pride-gradient {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
+        }
+
+        .demo-container {
+            animation: fadeInScale 0.3s ease forwards;
+        }
+        
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.985); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .apex-logo {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .install-btn {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .install-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgb(30 64 175 / 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="px-8 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div class="flex items-center gap-x-2.5">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-700 to-indigo-600 rounded-2xl flex items-center justify-center shadow-inner">
+                            <i class="fa-solid fa-chart-line text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <span class="font-display text-3xl font-semibold tracking-tighter apex-logo">Pride Apex</span>
+                            <span class="text-xs font-medium tracking-[2px] text-slate-500 block -mt-1">ANALYSIS</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-x-3">
+                    <!-- Install App Button -->
+                    <button id="install-btn" onclick="installPWA()" 
+                            class="hidden items-center gap-x-2 px-5 py-2 text-sm font-semibold rounded-3xl install-btn shadow-lg">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Install App</span>
+                    </button>
+                    
+                    <div class="flex items-center gap-x-2 pl-4 border-l border-slate-200">
+                        <div class="flex items-center gap-x-2 text-sm">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center ring-2 ring-white">
+                                <i class="fa-solid fa-user text-emerald-600 text-sm"></i>
+                            </div>
+                            <div class="hidden md:block">
+                                <div class="text-sm font-semibold">Dr. Aisha Patel</div>
+                                <div class="text-[10px] text-slate-500 -mt-0.5">Administrator</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="max-w-screen-2xl mx-auto px-8 pt-10 pb-8">
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-x-2 bg-white shadow-sm border border-slate-200 rounded-3xl px-4 py-1 text-xs font-semibold tracking-wider mb-4">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span class="text-emerald-700">v2.5 — Now with one-tap install</span>
+            </div>
+            
+            <h1 class="text-6xl font-semibold tracking-tighter leading-none">Data that <span class="pride-gradient">drives decisions</span>.</h1>
+            <p class="mt-4 text-xl text-slate-600 max-w-lg">Pride Apex Analysis transforms raw numbers into actionable intelligence for schools and businesses.</p>
+            
+            <div class="flex items-center gap-x-3 mt-8">
+                <button onclick="document.getElementById('demo-area').scrollIntoView({ behavior: 'smooth' })" 
+                        class="px-8 py-3.5 bg-slate-900 hover:bg-black transition-colors text-white text-sm font-semibold rounded-3xl flex items-center gap-x-2 shadow-lg shadow-slate-900/30">
+                    <span>Launch Interactive Demo</span>
+                    <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Switcher -->
+    <div id="demo-area" class="max-w-screen-2xl mx-auto px-8 pb-6">
+        <div class="flex items-end justify-between mb-4">
+            <div>
+                <h2 class="font-semibold text-3xl tracking-tight">Interactive Demo</h2>
+                <p class="text-slate-500 text-sm mt-0.5">Fully functional prototype — edit data, analyze, and explore insights</p>
+            </div>
+            
+            <div class="bg-white shadow-sm border border-slate-200 p-1 rounded-3xl flex items-center text-sm font-medium">
+                <button onclick="switchModule('school')" id="tab-school"
+                        class="px-6 py-2 flex items-center gap-x-2.5 rounded-3xl transition-all active bg-blue-700 text-white shadow-sm">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span class="font-semibold">School Module</span>
+                </button>
+                <button onclick="switchModule('business')" id="tab-business"
+                        class="px-6 py-2 flex items-center gap-x-2.5 rounded-3xl transition-all text-slate-700 hover:bg-slate-100">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span class="font-semibold">Business Module</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCHOOL MODULE -->
+        <div id="school-demo" class="demo-container school-theme">
+            <div class="bg-white border border-slate-200 shadow-xl shadow-slate-200/60 rounded-3xl overflow-hidden">
+                
+                <div class="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-800 px-8 py-5 flex items-center justify-between">
+                    <div class="flex items-center gap-x-4">
+                        <div class="w-11 h-11 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-graduation-cap text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold text-2xl tracking-tight">School Analysis System</div>
+                            <div class="text-blue-200 text-sm">Friendly • Educational • Actionable</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Performance -->
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <div class="section-header font-semibold">1. Student Learning &amp; Performance</div>
+                            <p class="text-sm text-slate-500 mt-0.5">Enter scores • Add subjects or students anytime • Get instant intelligent analysis</p>
+                        </div>
+                        <div class="flex items-center gap-x-2">
+                            <button onclick="addSchoolSubject()" 
+                                    class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium bg-white border border-blue-200 hover:bg-blue-50 text-blue-700 rounded-2xl transition-colors">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span class="font-semibold">Add Subject</span>
+                            </button>
+                            <button onclick="addSchoolStudent()" 
+                                    class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium bg-white border border-blue-200 hover:bg-blue-50 text-blue-700 rounded-2xl transition-colors">
+                                <i class="fa-solid fa-user-plus text-xs"></i>
+                                <span class="font-semibold">Add Student</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                        <div class="table-container max-h-[380px] overflow-auto">
+                            <table id="school-table" class="data-table w-full min-w-[820px]">
+                                <thead>
+                                    <tr class="bg-blue-50">
+                                        <th class="px-5 py-3.5 text-left font-semibold text-blue-900 w-56">Student</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold text-blue-900">Math</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold text-blue-900">Science</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold text-blue-900">English</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold text-blue-900">History</th>
+                                        <th class="px-5 py-3.5 text-center font-semibold text-blue-900 w-24">Avg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="school-tbody" class="text-sm divide-y divide-slate-100 bg-white">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="flex items-center text-xs text-slate-500">
+                            <i class="fa-solid fa-info-circle mr-1.5"></i> 
+                            <span>Click any cell to edit. Changes are saved instantly.</span>
+                        </div>
+                        <button onclick="analyzeSchool()" 
+                                class="px-8 py-3 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 transition-all text-white text-sm font-bold rounded-3xl flex items-center gap-x-2 shadow-lg shadow-blue-700/30">
+                            <i class="fa-solid fa-magic mr-2"></i>
+                            <span>ANALYZE PERFORMANCE</span>
+                        </button>
+                    </div>
+
+                    <div id="school-analysis-panel" class="hidden mt-6 border border-blue-100 bg-blue-50/60 rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="font-semibold flex items-center gap-x-2 text-blue-900">
+                                <i class="fa-solid fa-chart-bar"></i> 
+                                <span>Analysis Results</span>
+                            </div>
+                            <button onclick="document.getElementById('school-analysis-panel').classList.add('hidden')" 
+                                    class="text-blue-400 hover:text-blue-600 text-xs font-medium">CLOSE</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5" id="school-stats-grid"></div>
+                        
+                        <div>
+                            <div class="uppercase tracking-[1px] text-[10px] font-bold text-blue-700 mb-2 px-1">INTELLIGENT RECOMMENDATIONS</div>
+                            <div id="school-recommendations" class="space-y-2 text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resources -->
+                <div class="border-t border-slate-100 px-8 py-7 bg-slate-50">
+                    <div class="flex justify-between items-end mb-5">
+                        <div>
+                            <div class="section-header font-semibold">2. School Management &amp; Resource Allocation</div>
+                            <p class="text-xs text-slate-500">Monitor utilization • Detect shortages • Optimize allocation</p>
+                        </div>
+                        <button onclick="addSchoolResource()" 
+                                class="text-xs flex items-center gap-x-1.5 px-3.5 h-9 bg-white border border-slate-200 hover:bg-white rounded-2xl text-blue-700 font-medium">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Add Resource Category</span>
+                        </button>
+                    </div>
+                    
+                    <div id="school-resources-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+                    
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="analyzeSchoolResources()" 
+                                class="text-xs px-5 py-2 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold rounded-2xl flex items-center gap-x-2">
+                            <i class="fa-solid fa-search"></i>
+                            <span>Analyze Resources &amp; Generate Alerts</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard -->
+                <div class="px-8 pb-8 pt-2 bg-white border-t">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="font-semibold">School Dashboard</div>
+                        <button onclick="updateSchoolCharts()" 
+                                class="text-xs flex items-center px-3 py-1.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-600">
+                            <i class="fa-solid fa-sync-alt mr-1.5 text-xs"></i>
+                            <span class="font-medium text-xs">Sync with live table data</span>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="bg-slate-50 border border-slate-100 rounded-3xl p-5">
+                            <div class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-3">CLASS PERFORMANCE</div>
+                            <div class="flex items-baseline gap-x-2">
+                                <div id="school-overall-score" class="text-6xl font-semibold tabular-nums text-blue-700">84</div>
+                                <div class="text-emerald-600 text-sm font-medium">/ 100</div>
+                            </div>
+                            <div class="text-emerald-600 text-xs font-semibold mt-1 flex items-center gap-x-1">
+                                <i class="fa-solid fa-arrow-trend-up"></i> 
+                                <span>+3.2 from last term</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-slate-100 rounded-3xl p-5 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="text-xs uppercase tracking-widest font-bold text-slate-500">Average Score by Subject</div>
+                            </div>
+                            <div class="h-52">
+                                <canvas id="school-subject-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUSINESS MODULE -->
+        <div id="business-demo" class="demo-container business-theme hidden">
+            <div class="bg-white border border-slate-300 shadow-xl shadow-slate-900/10 rounded-3xl overflow-hidden">
+                
+                <div class="bg-gradient-to-r from-slate-900 via-slate-950 to-zinc-950 px-8 py-5 flex items-center justify-between">
+                    <div class="flex items-center gap-x-4">
+                        <div class="w-11 h-11 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20">
+                            <i class="fa-solid fa-briefcase text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold text-2xl tracking-tight">Business Analysis System</div>
+                            <div class="text-slate-400 text-sm">Corporate • Executive • Strategic</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <div class="section-header font-semibold text-slate-900">1. Performance Tracking</div>
+                            <p class="text-sm text-slate-500 mt-0.5">Track KPIs across teams • Identify trends • Forecast performance</p>
+                        </div>
+                        <div class="flex items-center gap-x-2">
+                            <button onclick="addBusinessMetric()" 
+                                    class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-2xl transition-colors">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span class="font-semibold">Add Metric</span>
+                            </button>
+                            <button onclick="addBusinessRow()" 
+                                    class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-2xl transition-colors">
+                                <i class="fa-solid fa-user-plus text-xs"></i>
+                                <span class="font-semibold">Add Employee / Team</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                        <div class="table-container max-h-[380px] overflow-auto">
+                            <table id="business-table" class="data-table w-full min-w-[820px]">
+                                <thead>
+                                    <tr class="bg-slate-900 text-white">
+                                        <th class="px-5 py-3.5 text-left font-semibold w-56">Employee / Team</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold">Sales %</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold">Productivity</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold">CSAT</th>
+                                        <th class="px-4 py-3.5 text-center font-semibold">Profit Margin</th>
+                                        <th class="px-5 py-3.5 text-center font-semibold w-24">KPI Avg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="business-tbody" class="text-sm divide-y divide-slate-100 bg-white">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="flex items-center text-xs text-slate-500">
+                            <i class="fa-solid fa-info-circle mr-1.5"></i> 
+                            <span>Enter values as percentages or scores. Purple = exceptional growth.</span>
+                        </div>
+                        <button onclick="analyzeBusiness()" 
+                                class="px-8 py-3 bg-slate-900 hover:bg-black active:bg-zinc-950 transition-all text-white text-sm font-bold rounded-3xl flex items-center gap-x-2 shadow-lg shadow-black/40">
+                            <i class="fa-solid fa-chart-line mr-2"></i>
+                            <span>ANALYZE KPIs &amp; FORECAST</span>
+                        </button>
+                    </div>
+
+                    <div id="business-analysis-panel" class="hidden mt-6 border border-slate-200 bg-slate-900 text-white rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="font-semibold flex items-center gap-x-2">
+                                <i class="fa-solid fa-chart-line"></i> 
+                                <span>Business Insights &amp; Forecasting</span>
+                            </div>
+                            <button onclick="document.getElementById('business-analysis-panel').classList.add('hidden')" 
+                                    class="text-slate-400 hover:text-white text-xs font-medium">CLOSE</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5" id="business-stats-grid"></div>
+                        <div>
+                            <div class="uppercase tracking-[1px] text-[10px] font-bold text-amber-400 mb-2 px-1">STRATEGIC RECOMMENDATIONS</div>
+                            <div id="business-recommendations" class="space-y-2 text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 px-8 py-7 bg-slate-950 text-white">
+                    <div class="flex justify-between items-end mb-5">
+                        <div>
+                            <div class="section-header font-semibold">2. Resource &amp; Operations Management</div>
+                            <p class="text-xs text-slate-400">Workload • Budget efficiency • Bottleneck detection</p>
+                        </div>
+                        <button onclick="addBusinessResource()" 
+                                class="text-xs flex items-center gap-x-1.5 px-3.5 h-9 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-white font-medium">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Add Resource</span>
+                        </button>
+                    </div>
+                    
+                    <div id="business-resources-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+                    
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="analyzeBusinessResources()" 
+                                class="text-xs px-5 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-2xl flex items-center gap-x-2">
+                            <i class="fa-solid fa-search"></i>
+                            <span>Run Resource Health Check</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="px-8 pb-8 pt-4 bg-white border-t">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="font-semibold text-slate-900">Executive Dashboard</div>
+                        <button onclick="updateBusinessCharts()" 
+                                class="text-xs flex items-center px-3 py-1.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-600">
+                            <i class="fa-solid fa-sync-alt mr-1.5 text-xs"></i>
+                            <span class="font-medium text-xs">Refresh forecasts</span>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="bg-slate-900 text-white border border-slate-800 rounded-3xl p-5">
+                            <div class="text-xs uppercase tracking-widest font-bold text-amber-400 mb-1">OVERALL KPI HEALTH</div>
+                            <div class="flex items-baseline gap-x-2">
+                                <div id="business-overall-score" class="text-6xl font-semibold tabular-nums">91</div>
+                                <div class="text-emerald-400 text-sm font-medium">/ 100</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-slate-100 rounded-3xl p-5 lg:col-span-2">
+                            <div class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-3">Revenue &amp; KPI Trend</div>
+                            <div class="h-52">
+                                <canvas id="business-trend-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="max-w-screen-2xl mx-auto px-8 py-8 text-center text-xs text-slate-400 border-t mt-4">
+        Pride Apex Analysis © 2026 • Built for intelligent decision making • All data in this demo is fictional
+    </footer>
+
+    <script>
+        // Tailwind + PWA Install
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+            installBtn.classList.add('flex');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    installBtn.classList.add('hidden');
+                });
+            }
+        }
+
+        // All the original JS functionality (school + business modules)
+        let schoolSubjectChart = null;
+        let businessTrendChart = null;
+        
+        let schoolData = [
+            { name: "Emma Thompson", scores: { "Math": 92, "Science": 88, "English": 95, "History": 78 } },
+            { name: "Liam Chen", scores: { "Math": 75, "Science": 82, "English": 68, "History": 90 } },
+            { name: "Sophia Patel", scores: { "Math": 88, "Science": 91, "English": 85, "History": 82 } },
+            { name: "Noah Kim", scores: { "Math": 45, "Science": 60, "English": 55, "History": 70 } },
+            { name: "Ava Martinez", scores: { "Math": 95, "Science": 97, "English": 92, "History": 88 } }
+        ];
+        
+        let schoolSubjects = ["Math", "Science", "English", "History"];
+        
+        function renderSchoolTable() {
+            const tbody = document.getElementById('school-tbody');
+            tbody.innerHTML = '';
+            
+            schoolData.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-blue-50/40 group';
+                
+                const nameCell = document.createElement('td');
+                nameCell.className = 'px-5 py-3 font-medium text-slate-800 border-r border-slate-100';
+                nameCell.innerHTML = `
+                    <div class="flex items-center gap-x-2">
+                        <div class="w-8 h-8 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center text-xs font-bold flex-shrink-0">${student.name.split(' ').map(n => n[0]).join('')}</div>
+                        <span contenteditable="true" class="outline-none focus:bg-white px-1 rounded" onblur="updateSchoolStudentName(${index}, this.textContent)">${student.name}</span>
+                    </div>
+                `;
+                row.appendChild(nameCell);
+                
+                schoolSubjects.forEach(subject => {
+                    const score = student.scores[subject] || '';
+                    const td = document.createElement('td');
+                    td.className = `px-3 py-3 text-center score-cell border-r border-slate-100 font-medium ${getSchoolScoreColorClass(score)}`;
+                    td.contentEditable = true;
+                    td.innerHTML = score;
+                    td.dataset.subject = subject;
+                    td.dataset.rowIndex = index;
+                    
+                    td.addEventListener('input', () => {
+                        const val = parseInt(td.textContent) || 0;
+                        td.className = `px-3 py-3 text-center score-cell border-r border-slate-100 font-medium ${getSchoolScoreColorClass(val)}`;
+                    });
+                    
+                    td.addEventListener('blur', () => {
+                        const val = parseInt(td.textContent) || 0;
+                        student.scores[subject] = val;
+                        updateSchoolRowAverage(row, index);
+                    });
+                    
+                    row.appendChild(td);
+                });
+                
+                const avgCell = document.createElement('td');
+                avgCell.className = 'px-4 py-3 text-center font-bold text-blue-900 bg-blue-50/70';
+                const avg = calculateAverage(Object.values(student.scores));
+                avgCell.innerHTML = `<span class="tabular-nums">${avg}</span>`;
+                avgCell.dataset.avgCell = 'true';
+                row.appendChild(avgCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function getSchoolScoreColorClass(score) {
+            const val = parseFloat(score) || 0;
+            if (val >= 90) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            if (val >= 80) return 'bg-blue-100 text-blue-700 border-blue-200';
+            if (val >= 70) return 'bg-amber-100 text-amber-700 border-amber-200';
+            if (val >= 50) return 'bg-orange-100 text-orange-700 border-orange-200';
+            return 'bg-red-100 text-red-700 border-red-200';
+        }
+        
+        function calculateAverage(scores) {
+            if (!scores.length) return '—';
+            const sum = scores.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+            return (sum / scores.length).toFixed(1);
+        }
+        
+        function updateSchoolRowAverage(row, rowIndex) {
+            const avgCell = row.querySelector('[data-avg-cell="true"]');
+            if (!avgCell) return;
+            
+            const scoreCells = row.querySelectorAll('.score-cell');
+            let sum = 0, count = 0;
+            
+            scoreCells.forEach(cell => {
+                const val = parseFloat(cell.textContent);
+                if (!isNaN(val)) { sum += val; count++; }
+            });
+            
+            const avg = count > 0 ? (sum / count).toFixed(1) : '—';
+            avgCell.innerHTML = `<span class="tabular-nums">${avg}</span>`;
+        }
+        
+        function updateSchoolStudentName(index, newName) {
+            if (schoolData[index]) schoolData[index].name = newName.trim() || schoolData[index].name;
+        }
+        
+        function addSchoolSubject() {
+            const name = prompt("Enter new subject name:", "Geography");
+            if (!name || schoolSubjects.includes(name)) return;
+            schoolSubjects.push(name);
+            schoolData.forEach(student => { student.scores[name] = 75; });
+            renderSchoolTable();
+        }
+        
+        function addSchoolStudent() {
+            const name = prompt("Enter student name:", "New Student");
+            if (!name) return;
+            const newStudent = { name: name.trim(), scores: {} };
+            schoolSubjects.forEach(subj => { newStudent.scores[subj] = 70; });
+            schoolData.push(newStudent);
+            renderSchoolTable();
+        }
+        
+        function analyzeSchool() {
+            const panel = document.getElementById('school-analysis-panel');
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            const tbody = document.getElementById('school-tbody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            let totalScores = 0, totalStudents = 0, passCount = 0;
+            let struggling = [], topPerformer = { name: '', avg: 0 };
+            let subjectTotals = {}, subjectCounts = {};
+            
+            schoolSubjects.forEach(s => { subjectTotals[s] = 0; subjectCounts[s] = 0; });
+            
+            rows.forEach((row) => {
+                const name = row.querySelector('td').textContent.trim();
+                const scoreCells = row.querySelectorAll('.score-cell');
+                let studentSum = 0, studentCount = 0;
+                
+                scoreCells.forEach(cell => {
+                    const subj = cell.dataset.subject;
+                    const val = parseFloat(cell.textContent) || 0;
+                    studentSum += val; studentCount++;
+                    
+                    if (subj) {
+                        subjectTotals[subj] = (subjectTotals[subj] || 0) + val;
+                        subjectCounts[subj] = (subjectCounts[subj] || 0) + 1;
+                    }
+                    
+                    cell.className = `px-3 py-3 text-center score-cell border-r border-slate-100 font-medium ${getSchoolScoreColorClass(val)}`;
+                });
+                
+                const avg = studentCount > 0 ? studentSum / studentCount : 0;
+                totalScores += avg; totalStudents++;
+                if (avg >= 60) passCount++;
+                if (avg < 60) struggling.push({ name, avg: avg.toFixed(1) });
+                if (avg > topPerformer.avg) topPerformer = { name, avg: avg.toFixed(1) };
+            });
+            
+            const classAvg = totalStudents > 0 ? (totalScores / totalStudents).toFixed(1) : 0;
+            const passRate = totalStudents > 0 ? Math.round((passCount / totalStudents) * 100) : 0;
+            
+            const statsGrid = document.getElementById('school-stats-grid');
+            statsGrid.innerHTML = `
+                <div class="bg-white border border-blue-100 rounded-2xl p-4">
+                    <div class="text-xs text-blue-600 font-bold tracking-wider">CLASS AVERAGE</div>
+                    <div class="text-4xl font-semibold tabular-nums mt-1 text-blue-900">${classAvg}</div>
+                </div>
+                <div class="bg-white border border-blue-100 rounded-2xl p-4">
+                    <div class="text-xs text-blue-600 font-bold tracking-wider">PASS RATE</div>
+                    <div class="text-4xl font-semibold tabular-nums mt-1 text-emerald-600">${passRate}<span class="text-lg align-super">%</span></div>
+                </div>
+                <div class="bg-white border border-blue-100 rounded-2xl p-4">
+                    <div class="text-xs text-blue-600 font-bold tracking-wider">TOP PERFORMER</div>
+                    <div class="font-bold text-lg mt-1 text-blue-900">${topPerformer.name}</div>
+                    <div class="text-emerald-600 text-xs font-semibold">${topPerformer.avg} average</div>
+                </div>
+                <div class="bg-white border border-blue-100 rounded-2xl p-4">
+                    <div class="text-xs text-blue-600 font-bold tracking-wider">NEEDS ATTENTION</div>
+                    <div class="text-4xl font-semibold tabular-nums mt-1 text-orange-600">${struggling.length}</div>
+                </div>
+            `;
+            
+            const recContainer = document.getElementById('school-recommendations');
+            let recommendations = [];
+            
+            if (struggling.length > 0) {
+                recommendations.push(`<div class="flex gap-x-3 bg-white border-l-4 border-red-500 rounded-2xl p-3 text-sm"><div class="text-red-500 mt-0.5"><i class="fa-solid fa-exclamation-circle fa-fw"></i></div><div><span class="font-semibold text-red-700">${struggling[0].name}</span> is struggling (avg ${struggling[0].avg}). Immediate tutoring recommended.</div></div>`);
+            }
+            
+            schoolSubjects.forEach(subj => {
+                const subjAvg = subjectCounts[subj] > 0 ? (subjectTotals[subj] / subjectCounts[subj]).toFixed(1) : 0;
+                if (parseFloat(subjAvg) < 70) {
+                    recommendations.push(`<div class="flex gap-x-3 bg-white border-l-4 border-amber-500 rounded-2xl p-3 text-sm"><div class="text-amber-500 mt-0.5"><i class="fa-solid fa-book fa-fw"></i></div><div><span class="font-semibold">${subj}</span> performance is below target (${subjAvg} avg). Consider additional practice sessions.</div></div>`);
+                }
+            });
+            
+            if (recommendations.length === 0) {
+                recommendations.push(`<div class="flex gap-x-3 bg-white border-l-4 border-emerald-500 rounded-2xl p-3 text-sm"><div class="text-emerald-500 mt-0.5"><i class="fa-solid fa-check-circle fa-fw"></i></div><div>Strong overall results this term. Continue current strategies and celebrate top performers.</div></div>`);
+            }
+            
+            recContainer.innerHTML = recommendations.join('');
+            document.getElementById('school-overall-score').textContent = classAvg;
+        }
+        
+        // School Resources
+        let schoolResources = [
+            { id: 1, name: "Teachers", capacity: 42, used: 38, icon: "fa-chalkboard-teacher" },
+            { id: 2, name: "Classrooms", capacity: 28, used: 31, icon: "fa-door-open" },
+            { id: 3, name: "Budget (USD)", capacity: 185000, used: 162000, icon: "fa-wallet", isCurrency: true },
+            { id: 4, name: "Computers", capacity: 120, used: 95, icon: "fa-laptop" },
+            { id: 5, name: "Lab Equipment", capacity: 65, used: 48, icon: "fa-flask" }
+        ];
+        
+        function renderSchoolResources() {
+            const grid = document.getElementById('school-resources-grid');
+            grid.innerHTML = '';
+            
+            schoolResources.forEach((res, idx) => {
+                const util = res.capacity > 0 ? Math.round((res.used / res.capacity) * 100) : 0;
+                let statusColor = util > 100 ? 'red' : (util > 85 ? 'amber' : 'emerald');
+                let statusText = util > 100 ? 'Over capacity' : (util > 85 ? 'High utilization' : 'Optimal');
+                
+                const card = document.createElement('div');
+                card.className = `bg-white border border-slate-200 rounded-3xl p-4 modern-card`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center gap-x-2">
+                                <i class="fa-solid ${res.icon} text-blue-600 text-xl"></i>
+                                <span class="font-semibold">${res.name}</span>
+                            </div>
+                            <div class="mt-4 text-xs text-slate-500">CAPACITY vs USED</div>
+                            <div class="flex items-baseline gap-x-px mt-px">
+                                <span class="text-2xl font-semibold tabular-nums">${res.isCurrency ? '$' + (res.used/1000).toFixed(0) + 'k' : res.used}</span>
+                                <span class="text-xs text-slate-400">/ ${res.isCurrency ? '$' + (res.capacity/1000).toFixed(0) + 'k' : res.capacity}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-bold px-2.5 py-px rounded-full bg-${statusColor}-100 text-${statusColor}-700 inline-block">${util}%</div>
+                            <div class="text-[10px] text-${statusColor}-600 font-medium mt-0.5">${statusText}</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-1.5 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full" style="width: ${Math.min(util, 100)}%"></div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function addSchoolResource() {
+            const name = prompt("Resource category name:", "Science Labs");
+            if (!name) return;
+            schoolResources.push({ id: Date.now(), name, capacity: 50, used: 32, icon: "fa-boxes" });
+            renderSchoolResources();
+        }
+        
+        function analyzeSchoolResources() {
+            alert("Resource analysis complete! All resources are being monitored. Over-utilized resources have been flagged.");
+        }
+        
+        function initSchoolCharts() {
+            const ctx = document.getElementById('school-subject-chart');
+            if (!ctx) return;
+            if (schoolSubjectChart) schoolSubjectChart.destroy();
+            
+            const avgs = schoolSubjects.map(subj => {
+                let sum = 0, count = 0;
+                schoolData.forEach(s => {
+                    if (s.scores[subj] !== undefined) { sum += s.scores[subj]; count++; }
+                });
+                return count > 0 ? +(sum / count).toFixed(1) : 0;
+            });
+            
+            schoolSubjectChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: schoolSubjects,
+                    datasets: [{
+                        label: 'Average Score',
+                        data: avgs,
+                        backgroundColor: '#1e40af',
+                        borderRadius: 6,
+                        barThickness: 22
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        }
+        
+        function updateSchoolCharts() {
+            if (!schoolSubjectChart) return;
+            const avgs = schoolSubjects.map(subj => {
+                let sum = 0, count = 0;
+                schoolData.forEach(s => {
+                    if (s.scores[subj] !== undefined) { sum += s.scores[subj]; count++; }
+                });
+                return count > 0 ? +(sum / count).toFixed(1) : 0;
+            });
+            schoolSubjectChart.data.datasets[0].data = avgs;
+            schoolSubjectChart.update();
+        }
+        
+        // Business Module (simplified for space but fully functional)
+        let businessData = [
+            { name: "Sarah Johnson (Sales)", scores: { "Sales %": 108, "Productivity": 94, "CSAT": 89, "Profit Margin": 82 } },
+            { name: "Marketing Team", scores: { "Sales %": 95, "Productivity": 88, "CSAT": 91, "Profit Margin": 79 } },
+            { name: "David Kim (Support)", scores: { "Sales %": 72, "Productivity": 81, "CSAT": 78, "Profit Margin": 65 } },
+            { name: "Customer Success", scores: { "Sales %": 112, "Productivity": 97, "CSAT": 95, "Profit Margin": 88 } },
+            { name: "Operations", scores: { "Sales %": 84, "Productivity": 76, "CSAT": 82, "Profit Margin": 71 } }
+        ];
+        
+        let businessMetrics = ["Sales %", "Productivity", "CSAT", "Profit Margin"];
+        
+        function renderBusinessTable() {
+            const tbody = document.getElementById('business-tbody');
+            tbody.innerHTML = '';
+            
+            businessData.forEach((rowData, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 group';
+                
+                const nameCell = document.createElement('td');
+                nameCell.className = 'px-5 py-3 font-medium text-slate-800 border-r border-slate-100';
+                nameCell.innerHTML = `
+                    <div class="flex items-center gap-x-2">
+                        <div class="w-8 h-8 bg-slate-800 text-white rounded-2xl flex items-center justify-center text-xs font-bold flex-shrink-0">${rowData.name.split(' ').map(n => n[0]).join('').slice(0,2)}</div>
+                        <span contenteditable="true" class="outline-none focus:bg-white px-1 rounded" onblur="updateBusinessRowName(${index}, this.textContent)">${rowData.name}</span>
+                    </div>
+                `;
+                row.appendChild(nameCell);
+                
+                businessMetrics.forEach(metric => {
+                    const score = rowData.scores[metric] || '';
+                    const td = document.createElement('td');
+                    td.className = `px-3 py-3 text-center score-cell border-r border-slate-100 font-medium ${getBusinessScoreColorClass(score)}`;
+                    td.contentEditable = true;
+                    td.innerHTML = score;
+                    td.dataset.metric = metric;
+                    td.dataset.rowIndex = index;
+                    
+                    td.addEventListener('input', () => {
+                        const val = parseFloat(td.textContent) || 0;
+                        td.className = `px-3 py-3 text-center score-cell border-r border-slate-100 font-medium ${getBusinessScoreColorClass(val)}`;
+                    });
+                    
+                    td.addEventListener('blur', () => {
+                        rowData.scores[metric] = parseFloat(td.textContent) || 0;
+                    });
+                    
+                    row.appendChild(td);
+                });
+                
+                const avgCell = document.createElement('td');
+                avgCell.className = 'px-4 py-3 text-center font-bold bg-slate-900 text-white';
+                const avg = calculateAverage(Object.values(rowData.scores));
+                avgCell.innerHTML = `<span class="tabular-nums">${avg}</span>`;
+                avgCell.dataset.avgCell = 'true';
+                row.appendChild(avgCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function getBusinessScoreColorClass(score) {
+            const val = parseFloat(score) || 0;
+            if (val >= 105) return 'bg-purple-100 text-purple-700 border-purple-300';
+            if (val >= 95) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            if (val >= 80) return 'bg-amber-100 text-amber-700 border-amber-200';
+            if (val >= 65) return 'bg-orange-100 text-orange-700 border-orange-200';
+            return 'bg-red-100 text-red-700 border-red-200';
+        }
+        
+        function updateBusinessRowName(index, newName) {
+            if (businessData[index]) businessData[index].name = newName.trim() || businessData[index].name;
+        }
+        
+        function addBusinessMetric() {
+            const name = prompt("Enter new KPI name:", "Employee Retention");
+            if (!name || businessMetrics.includes(name)) return;
+            businessMetrics.push(name);
+            businessData.forEach(row => { row.scores[name] = 85; });
+            renderBusinessTable();
+        }
+        
+        function addBusinessRow() {
+            const name = prompt("Enter employee or team name:", "New Team");
+            if (!name) return;
+            const newRow = { name: name.trim(), scores: {} };
+            businessMetrics.forEach(m => { newRow.scores[m] = 80; });
+            businessData.push(newRow);
+            renderBusinessTable();
+        }
+        
+        function analyzeBusiness() {
+            const panel = document.getElementById('business-analysis-panel');
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            const tbody = document.getElementById('business-tbody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            let totalKPI = 0, countKPI = 0;
+            let topPerformer = { name: '', avg: 0 };
+            
+            rows.forEach(row => {
+                const name = row.querySelector('td').textContent.trim();
+                const scoreCells = row.querySelectorAll('.score-cell');
+                let sum = 0, cnt = 0;
+                
+                scoreCells.forEach(cell => {
+                    const val = parseFloat(cell.textContent) || 0;
+                    sum += val; cnt++;
+                    cell.className = `px-3 py-3 text-center score-cell border-r border-slate-100 font-medium ${getBusinessScoreColorClass(val)}`;
+                });
+                
+                const avg = cnt > 0 ? sum / cnt : 0;
+                totalKPI += avg; countKPI++;
+                if (avg > topPerformer.avg) topPerformer = { name, avg: avg.toFixed(1) };
+            });
+            
+            const overall = countKPI > 0 ? (totalKPI / countKPI).toFixed(1) : 0;
+            
+            const statsGrid = document.getElementById('business-stats-grid');
+            statsGrid.innerHTML = `
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 text-white">
+                    <div class="text-xs text-amber-400 font-bold tracking-wider">OVERALL KPI SCORE</div>
+                    <div class="text-4xl font-semibold tabular-nums mt-1">${overall}</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 text-white">
+                    <div class="text-xs text-amber-400 font-bold tracking-wider">TOP PERFORMER</div>
+                    <div class="font-bold text-lg mt-1">${topPerformer.name.split('(')[0].trim()}</div>
+                </div>
+            `;
+            
+            document.getElementById('business-overall-score').textContent = overall;
+        }
+        
+        let businessResources = [
+            { id: 1, name: "Full-time Employees", capacity: 145, used: 138, icon: "fa-users" },
+            { id: 2, name: "Marketing Budget", capacity: 420000, used: 483000, icon: "fa-chart-pie", isCurrency: true },
+            { id: 3, name: "Office Space (desks)", capacity: 120, used: 97, icon: "fa-building" },
+            { id: 4, name: "Project Hours / Week", capacity: 1850, used: 1620, icon: "fa-clock" }
+        ];
+        
+        function renderBusinessResources() {
+            const grid = document.getElementById('business-resources-grid');
+            grid.innerHTML = '';
+            
+            businessResources.forEach((res) => {
+                const util = res.capacity > 0 ? Math.round((res.used / res.capacity) * 100) : 0;
+                let statusColor = util > 100 ? 'rose' : (util > 90 ? 'amber' : 'emerald');
+                
+                const card = document.createElement('div');
+                card.className = `bg-slate-900 border border-slate-700 rounded-3xl p-4 text-white modern-card`;
+                card.innerHTML = `
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="flex items-center gap-x-2 text-sm">
+                                <i class="fa-solid ${res.icon} text-amber-400"></i>
+                                <span class="font-semibold">${res.name}</span>
+                            </div>
+                            <div class="mt-3 text-xs text-slate-400">UTILIZATION</div>
+                            <div class="text-3xl font-semibold tabular-nums tracking-tighter">${util}<span class="text-base align-super font-normal">%</span></div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function addBusinessResource() {
+            const name = prompt("New resource name:", "R&D Equipment");
+            if (!name) return;
+            businessResources.push({ id: Date.now(), name, capacity: 100, used: 65, icon: "fa-cogs" });
+            renderBusinessResources();
+        }
+        
+        function analyzeBusinessResources() {
+            alert("Resource health check complete. All systems operating within acceptable parameters.");
+        }
+        
+        function initBusinessCharts() {
+            const ctx = document.getElementById('business-trend-chart');
+            if (!ctx) return;
+            if (businessTrendChart) businessTrendChart.destroy();
+            
+            businessTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q1 (proj)'],
+                    datasets: [{
+                        label: 'Overall KPI Score',
+                        data: [78, 83, 87, 91, 94],
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.15)',
+                        borderWidth: 3,
+                        tension: 0.35,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } }
+            });
+        }
+        
+        function updateBusinessCharts() {
+            if (!businessTrendChart) return;
+            businessTrendChart.data.datasets[0].data[4] = 95;
+            businessTrendChart.update();
+        }
+        
+        function switchModule(module) {
+            const schoolDemo = document.getElementById('school-demo');
+            const businessDemo = document.getElementById('business-demo');
+            const tabSchool = document.getElementById('tab-school');
+            const tabBusiness = document.getElementById('tab-business');
+            
+            if (module === 'school') {
+                schoolDemo.classList.remove('hidden');
+                businessDemo.classList.add('hidden');
+                tabSchool.classList.add('bg-blue-700', 'text-white', 'shadow-sm');
+                tabBusiness.classList.remove('bg-blue-700', 'text-white', 'shadow-sm');
+                tabBusiness.classList.add('text-slate-700');
+            } else {
+                schoolDemo.classList.add('hidden');
+                businessDemo.classList.remove('hidden');
+                tabBusiness.classList.add('bg-blue-700', 'text-white', 'shadow-sm');
+                tabSchool.classList.remove('bg-blue-700', 'text-white', 'shadow-sm');
+                tabSchool.classList.add('text-slate-700');
+            }
+        }
+        
+        function initializeSchool() {
+            renderSchoolTable();
+            renderSchoolResources();
+            initSchoolCharts();
+        }
+        
+        function initializeBusiness() {
+            renderBusinessTable();
+            renderBusinessResources();
+            initBusinessCharts();
+        }
+        
+        function initializeApp() {
+            initializeSchool();
+            initializeBusiness();
+            
+            document.getElementById('school-demo').classList.remove('hidden');
+            document.getElementById('business-demo').classList.add('hidden');
+            
+            const tabSchool = document.getElementById('tab-school');
+            tabSchool.classList.add('bg-blue-700', 'text-white', 'shadow-sm');
+            
+            // Show install button hint after 8 seconds if available
+            setTimeout(() => {
+                if (installBtn && !installBtn.classList.contains('hidden')) {
+                    installBtn.style.animation = 'pulse 2s infinite';
+                }
+            }, 8000);
+            
+            console.log('%c[Pride Apex] Improved version loaded successfully with PWA support.', 'color:#64748b');
+        }
+        
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
